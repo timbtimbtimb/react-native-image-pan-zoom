@@ -28,5 +28,13 @@
   "peerDependencies": {
     "react": ">=18",
     "react-native": ">=0.72"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/timbtimbtimb/react-native-image-pan-zoom.git"
+  },
+  "bugs": {
+    "url": "https://github.com/timbtimbtimb/react-native-image-pan-zoom/issues"
+  },
+  "homepage": "https://github.com/timbtimbtimb/react-native-image-pan-zoom#readme"
 }

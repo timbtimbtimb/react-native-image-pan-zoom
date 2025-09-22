@@ -1,0 +1,32 @@
+{
+  "name": "@snowmap/react-native-image-pan-zoom",
+  "version": "1.0.0",
+  "description": "Pan and zoom in an image, with nothing more than everything you need.",
+  "main": "dist/ImagePanZoom.cjs",
+  "module": "dist/ImagePanZoom.mjs",
+  "types": "dist/ImagePanZoom.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/ImagePanZoom.mjs",
+      "require": "./dist/ImagePanZoom.cjs",
+      "types": "./dist/ImagePanZoom.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/ImagePanZoom.tsx --dts --format esm,cjs --out-dir dist"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/react": "^19.1.13",
+    "tsup": "^8.5.0",
+    "typescript": "^5.9.2"
+  },
+  "peerDependencies": {
+    "react": ">=18",
+    "react-native": ">=0.72"
+  }
+}

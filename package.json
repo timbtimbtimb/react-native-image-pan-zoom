@@ -1,6 +1,6 @@
 {
   "name": "@snowmap.fr/react-native-image-pan-zoom",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Pan and zoom in an image, with nothing more than everything you need.",
   "main": "./lib/module/index.js",
   "types": "./lib/typescript/src/index.d.ts",

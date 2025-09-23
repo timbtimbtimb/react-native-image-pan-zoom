@@ -1,7 +1,7 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useRef } from 'react';
 import type { ReactElement } from 'react';
 import type { GestureResponderEvent } from 'react-native';
-import { Image, PanResponder, StyleSheet, View } from 'react-native';
+import { Animated, PanResponder, StyleSheet, View } from 'react-native';
 
 export type SwipeDirection = 'left' | 'right' | 'up' | 'down';
 
@@ -15,96 +15,138 @@ interface Props {
 }
 
 export default function ImagePanZoom({ source }: Props): ReactElement {
-  const lastTouchTimestamp = useRef<number>(0);
+  const tapHistory = useRef<
+    Array<{ timestamp: number; direction: 'on' | 'off' }>
+  >([]);
 
   const touchesStartSize = useRef<number>(1);
   const startScale = useRef<number>(1);
   const currentScale = useRef<number>(1);
-  const [scale, setScale] = useState<number>(1);
+
+  const scale = useRef(new Animated.Value(1)).current;
+  const center = useRef(new Animated.ValueXY({ x: 0, y: 0 })).current;
 
   const touchesStartCenter = useRef<Position>({ x: 0, y: 0 });
   const startCenter = useRef<Position>({ x: 0, y: 0 });
   const currentCenter = useRef<Position>({ x: 0, y: 0 });
-  const [center, setCenter] = useState<Position>({ x: 0, y: 0 });
 
-  const reset = useCallback((event: GestureResponderEvent): boolean => {
-    if (event.nativeEvent.touches.length !== 1) return false;
-    if (event.timeStamp - lastTouchTimestamp.current > 150) return false;
-
+  const reset = useCallback(() => {
     startScale.current = 1;
     currentScale.current = 1;
-    setScale(1);
 
     startCenter.current = { x: 0, y: 0 };
     currentCenter.current = { x: 0, y: 0 };
-    setCenter({ x: 0, y: 0 });
 
-    return true;
-  }, []);
+    Animated.parallel([
+      Animated.timing(scale, {
+        toValue: 1,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+      Animated.timing(center, {
+        toValue: { x: 0, y: 0 },
+        duration: 200,
+        useNativeDriver: true,
+      }),
+    ]).start();
 
-  const onPanResponderStart = useCallback(
-    (event: GestureResponderEvent) => {
-      if (reset(event)) return;
+    tapHistory.current = [];
+  }, [scale, center]);
 
-      if (event.nativeEvent.touches[0] == null) return;
+  const onPanResponderStart = useCallback((event: GestureResponderEvent) => {
+    if (event.nativeEvent.touches[0] == null) return;
 
-      lastTouchTimestamp.current = event.timeStamp;
-
-      if (event.nativeEvent.touches.length === 1) {
-        touchesStartCenter.current = {
-          x: event.nativeEvent.touches[0].pageX,
-          y: event.nativeEvent.touches[0].pageY,
-        };
-      }
-
-      if (event.nativeEvent.touches.length === 2) {
-        touchesStartSize.current = getTouchesSize(event);
-        touchesStartCenter.current = getTouchesCenter(event);
-      }
-    },
-    [reset]
-  );
-
-  const onPanResponderMove = useCallback((event: GestureResponderEvent) => {
     if (event.nativeEvent.touches.length === 1) {
-      const centerDelta = getTouchesCenterDelta(
-        event,
-        touchesStartCenter.current
-      );
-      const scaledCenterDelta = {
-        x: centerDelta.x / currentScale.current,
-        y: centerDelta.y / currentScale.current,
-      };
+      tapHistory.current = [
+        ...tapHistory.current,
+        {
+          timestamp: event.timeStamp,
+          direction: 'on',
+        },
+      ];
 
-      currentCenter.current = {
-        x: startCenter.current.x + scaledCenterDelta.x,
-        y: startCenter.current.y + scaledCenterDelta.y,
+      touchesStartCenter.current = {
+        x: event.nativeEvent.touches[0].pageX,
+        y: event.nativeEvent.touches[0].pageY,
       };
-
-      setCenter(currentCenter.current);
     }
 
     if (event.nativeEvent.touches.length === 2) {
-      const touchesSize = getTouchesSize(event);
-      const ratio = touchesSize / touchesStartSize.current;
-      currentScale.current = startScale.current * ratio;
-      setScale(currentScale.current);
-
-      const touchesCenter = getTouchesCenter(event);
-      const centerDelta = {
-        x: touchesCenter.x - touchesStartCenter.current.x,
-        y: touchesCenter.y - touchesStartCenter.current.y,
-      };
-      currentCenter.current = {
-        x: startCenter.current.x + centerDelta.x / currentScale.current,
-        y: startCenter.current.y + centerDelta.y / currentScale.current,
-      };
-      setCenter(currentCenter.current);
+      touchesStartSize.current = getTouchesSize(event);
+      touchesStartCenter.current = getTouchesCenter(event);
     }
   }, []);
 
+  const onPanResponderMove = useCallback(
+    (event: GestureResponderEvent) => {
+      if (event.nativeEvent.touches.length === 1) {
+        const centerDelta = getTouchesCenterDelta(
+          event,
+          touchesStartCenter.current
+        );
+        const scaledCenterDelta = {
+          x: centerDelta.x / currentScale.current,
+          y: centerDelta.y / currentScale.current,
+        };
+
+        currentCenter.current = {
+          x: startCenter.current.x + scaledCenterDelta.x,
+          y: startCenter.current.y + scaledCenterDelta.y,
+        };
+
+        center.setValue(currentCenter.current);
+      }
+
+      if (event.nativeEvent.touches.length === 2) {
+        const touchesSize = getTouchesSize(event);
+        const ratio = touchesSize / touchesStartSize.current;
+        currentScale.current = startScale.current * ratio;
+        scale.setValue(currentScale.current);
+
+        const touchesCenter = getTouchesCenter(event);
+        const centerDelta = {
+          x: touchesCenter.x - touchesStartCenter.current.x,
+          y: touchesCenter.y - touchesStartCenter.current.y,
+        };
+        currentCenter.current = {
+          x: startCenter.current.x + centerDelta.x / currentScale.current,
+          y: startCenter.current.y + centerDelta.y / currentScale.current,
+        };
+        center.setValue(currentCenter.current);
+      }
+    },
+    [center, scale]
+  );
+
   const onPanResponderRelease = useCallback(
     (event: GestureResponderEvent) => {
+      if (
+        event.nativeEvent.changedTouches.length === 1 &&
+        event.nativeEvent.touches.length === 0
+      ) {
+        tapHistory.current = [
+          ...tapHistory.current,
+          {
+            timestamp: event.timeStamp,
+            direction: 'off',
+          },
+        ];
+
+        if (
+          tapHistory.current.at(-1)?.direction === 'off' &&
+          tapHistory.current.at(-2)?.direction === 'on' &&
+          tapHistory.current.at(-3)?.direction === 'off' &&
+          tapHistory.current.at(-4)?.direction === 'on'
+        ) {
+          const start = tapHistory.current.at(-4)?.timestamp;
+          const end = tapHistory.current.at(-1)?.timestamp;
+          if (start == null || end == null) return;
+          if (end - start < 300) {
+            reset();
+          }
+        }
+      }
+
       if (event.nativeEvent.touches.length === 1) {
         onPanResponderStart(event);
       }
@@ -112,7 +154,7 @@ export default function ImagePanZoom({ source }: Props): ReactElement {
       startCenter.current = currentCenter.current;
       startScale.current = currentScale.current;
     },
-    [onPanResponderStart]
+    [onPanResponderStart, reset]
   );
 
   const panResponder = useRef(
@@ -131,21 +173,21 @@ export default function ImagePanZoom({ source }: Props): ReactElement {
 
   return (
     <View style={styles.container} {...panResponder.current.panHandlers}>
-      <View
+      <Animated.View
         style={{
           ...styles.container,
           transform: [{ scale }],
         }}
       >
-        <Image
-          src={source}
+        <Animated.Image
+          source={{ uri: source }}
           onError={console.error}
           style={{
             ...styles.container,
             transform: [{ translateX: center.x }, { translateY: center.y }],
           }}
         />
-      </View>
+      </Animated.View>
     </View>
   );
 }

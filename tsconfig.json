@@ -2,7 +2,7 @@
   "compilerOptions": {
     "rootDir": ".",
     "paths": {
-      "@snowmap/react-native-image-pan-zoom": ["./src/index"]
+      "@snowmap.fr/react-native-image-pan-zoom": ["./src/index"]
     },
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,

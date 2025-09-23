@@ -1,5 +1,5 @@
 {
-  "name": "@snowmap/react-native-image-pan-zoom",
+  "name": "@snowmap.fr/react-native-image-pan-zoom",
   "version": "0.1.0",
   "description": "Pan and zoom in an image, with nothing more than everything you need.",
   "main": "./lib/module/index.js",
@@ -32,7 +32,7 @@
     "!**/.*"
   ],
   "scripts": {
-    "example": "yarn workspace @snowmap/react-native-image-pan-zoom-example",
+    "example": "yarn workspace @snowmap.fr/react-native-image-pan-zoom-example",
     "test": "jest",
     "typecheck": "tsc",
     "lint": "eslint \"**/*.{js,ts,tsx}\"",

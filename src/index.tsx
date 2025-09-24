@@ -1,19 +1,18 @@
 import { useCallback, useRef } from 'react';
-import type { ReactElement, ReactNode, RefObject } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import type { GestureResponderEvent } from 'react-native';
 import { Animated, PanResponder, StyleSheet, View } from 'react-native';
+import getTouchesSize from './getTouchesSize';
+import getTouchesCenter from './getTouchesCenter';
+import getTouchesCenterDelta from './getTouchesCenterDelta';
+import handleDoubleTap, { type TapHistoryItem } from './handleDoubleTap';
 
 export type SwipeDirection = 'left' | 'right' | 'up' | 'down';
 
-type Position = {
+export type Position = {
   x: number;
   y: number;
 };
-
-interface TapHistoryItem {
-  timestamp: number;
-  direction: 'on' | 'off';
-}
 
 export default function ImagePanZoom({
   children,
@@ -171,79 +170,6 @@ export default function ImagePanZoom({
       </Animated.View>
     </View>
   );
-}
-
-function getTouchesSize(event: GestureResponderEvent): number {
-  const [a, b] = event.nativeEvent.touches;
-  if (a == null || b == null) return 1;
-  const xDistance = Math.abs(a.pageX - b.pageX);
-  const yDistance = Math.abs(a.pageY - b.pageY);
-  const diagonal = Math.sqrt(xDistance * xDistance + yDistance * yDistance);
-  return diagonal;
-}
-
-function getTouchesCenter(event: GestureResponderEvent): Position {
-  const [a, b] = event.nativeEvent.touches;
-  if (a == null || b == null) return { x: 0, y: 0 };
-  const xCenter = (a.pageX + b.pageX) / 2;
-  const yCenter = (a.pageY + b.pageY) / 2;
-  return { x: xCenter, y: yCenter };
-}
-
-function getTouchesCenterDelta(
-  event: GestureResponderEvent,
-  touchesStartCenter: Position
-): Position {
-  if (event.nativeEvent.touches[0] == null) return { x: 0, y: 0 };
-
-  const touchesCenter = {
-    x: event.nativeEvent.touches[0].pageX,
-    y: event.nativeEvent.touches[0].pageY,
-  };
-  const centerDelta = {
-    x: touchesCenter.x - touchesStartCenter.x,
-    y: touchesCenter.y - touchesStartCenter.y,
-  };
-
-  return centerDelta;
-}
-
-function handleDoubleTap(
-  event: GestureResponderEvent,
-  tapHistory: RefObject<TapHistoryItem[]>
-) {
-  if (
-    event.nativeEvent.changedTouches.length !== 1 ||
-    event.nativeEvent.touches.length !== 0
-  ) {
-    return false;
-  }
-
-  tapHistory.current = [
-    ...tapHistory.current,
-    {
-      timestamp: event.timeStamp,
-      direction: 'off',
-    },
-  ];
-
-  if (
-    tapHistory.current.at(-1)?.direction !== 'off' ||
-    tapHistory.current.at(-2)?.direction !== 'on' ||
-    tapHistory.current.at(-3)?.direction !== 'off' ||
-    tapHistory.current.at(-4)?.direction !== 'on'
-  ) {
-    return false;
-  }
-
-  const start = tapHistory.current.at(-4)?.timestamp;
-  const end = tapHistory.current.at(-1)?.timestamp;
-
-  if (start == null || end == null) return false;
-
-  if (end - start >= 300) return false;
-
-  return true;
 }
 
 const styles = StyleSheet.create({

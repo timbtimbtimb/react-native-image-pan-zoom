@@ -14,9 +14,9 @@ npm install @snowmap.fr/react-native-view-pan-zoom
 
 
 ```js
-import ImagePanZoom from '@snowmap.fr/react-native-view-pan-zoom';
+import ViewPanZoom from '@snowmap.fr/react-native-view-pan-zoom';
 
-<ImagePanZoom source="https://images.pexels.com/photos/31001122/pexels-photo-31001122.jpeg" />
+<ViewPanZoom source="https://images.pexels.com/photos/31001122/pexels-photo-31001122.jpeg" />
 ```
 
 

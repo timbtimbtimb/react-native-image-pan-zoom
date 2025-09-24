@@ -19,7 +19,7 @@ export type Position = {
   y: number;
 };
 
-export default function ImagePanZoom({
+export default function ViewPanZoom({
   onSwipe,
   children,
 }: {

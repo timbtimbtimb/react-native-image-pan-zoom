@@ -14,7 +14,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "snowmap.reactnativeimagepanzoom.example"
+      "bundleIdentifier": "snowmap.reactnativeviewpanzoom.example"
     },
     "android": {
       "adaptiveIcon": {
@@ -22,7 +22,7 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "snowmap.reactnativeimagepanzoom.example"
+      "package": "snowmap.reactnativeviewpanzoom.example"
     },
     "web": {
       "favicon": "./assets/favicon.png"

@@ -1,5 +1,5 @@
 import { useCallback, useRef } from 'react';
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import type { GestureResponderEvent } from 'react-native';
 import { Animated, PanResponder, StyleSheet, View } from 'react-native';
 
@@ -10,11 +10,11 @@ type Position = {
   y: number;
 };
 
-interface Props {
-  source: string;
-}
-
-export default function ImagePanZoom({ source }: Props): ReactElement {
+export default function ImagePanZoom({
+  children,
+}: {
+  children: ReactNode;
+}): ReactElement {
   const tapHistory = useRef<
     Array<{ timestamp: number; direction: 'on' | 'off' }>
   >([]);
@@ -179,14 +179,14 @@ export default function ImagePanZoom({ source }: Props): ReactElement {
           transform: [{ scale }],
         }}
       >
-        <Animated.Image
-          source={{ uri: source }}
-          onError={console.error}
+        <Animated.View
           style={{
             ...styles.container,
             transform: [{ translateX: center.x }, { translateY: center.y }],
           }}
-        />
+        >
+          {children}
+        </Animated.View>
       </Animated.View>
     </View>
   );

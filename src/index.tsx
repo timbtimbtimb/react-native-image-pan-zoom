@@ -1,5 +1,5 @@
 import { useCallback, useRef } from 'react';
-import type { ReactElement, ReactNode } from 'react';
+import type { ReactElement, ReactNode, RefObject } from 'react';
 import type { GestureResponderEvent } from 'react-native';
 import { Animated, PanResponder, StyleSheet, View } from 'react-native';
 
@@ -10,14 +10,17 @@ type Position = {
   y: number;
 };
 
+interface TapHistoryItem {
+  timestamp: number;
+  direction: 'on' | 'off';
+}
+
 export default function ImagePanZoom({
   children,
 }: {
   children: ReactNode;
 }): ReactElement {
-  const tapHistory = useRef<
-    Array<{ timestamp: number; direction: 'on' | 'off' }>
-  >([]);
+  const tapHistory = useRef<TapHistoryItem[]>([]);
 
   const touchesStartSize = useRef<number>(1);
   const startScale = useRef<number>(1);
@@ -120,31 +123,9 @@ export default function ImagePanZoom({
 
   const onPanResponderRelease = useCallback(
     (event: GestureResponderEvent) => {
-      if (
-        event.nativeEvent.changedTouches.length === 1 &&
-        event.nativeEvent.touches.length === 0
-      ) {
-        tapHistory.current = [
-          ...tapHistory.current,
-          {
-            timestamp: event.timeStamp,
-            direction: 'off',
-          },
-        ];
-
-        if (
-          tapHistory.current.at(-1)?.direction === 'off' &&
-          tapHistory.current.at(-2)?.direction === 'on' &&
-          tapHistory.current.at(-3)?.direction === 'off' &&
-          tapHistory.current.at(-4)?.direction === 'on'
-        ) {
-          const start = tapHistory.current.at(-4)?.timestamp;
-          const end = tapHistory.current.at(-1)?.timestamp;
-          if (start == null || end == null) return;
-          if (end - start < 300) {
-            reset();
-          }
-        }
+      if (handleDoubleTap(event, tapHistory)) {
+        reset();
+        return;
       }
 
       if (event.nativeEvent.touches.length === 1) {
@@ -225,6 +206,44 @@ function getTouchesCenterDelta(
   };
 
   return centerDelta;
+}
+
+function handleDoubleTap(
+  event: GestureResponderEvent,
+  tapHistory: RefObject<TapHistoryItem[]>
+) {
+  if (
+    event.nativeEvent.changedTouches.length !== 1 ||
+    event.nativeEvent.touches.length !== 0
+  ) {
+    return false;
+  }
+
+  tapHistory.current = [
+    ...tapHistory.current,
+    {
+      timestamp: event.timeStamp,
+      direction: 'off',
+    },
+  ];
+
+  if (
+    tapHistory.current.at(-1)?.direction !== 'off' ||
+    tapHistory.current.at(-2)?.direction !== 'on' ||
+    tapHistory.current.at(-3)?.direction !== 'off' ||
+    tapHistory.current.at(-4)?.direction !== 'on'
+  ) {
+    return false;
+  }
+
+  const start = tapHistory.current.at(-4)?.timestamp;
+  const end = tapHistory.current.at(-1)?.timestamp;
+
+  if (start == null || end == null) return false;
+
+  if (end - start >= 300) return false;
+
+  return true;
 }
 
 const styles = StyleSheet.create({

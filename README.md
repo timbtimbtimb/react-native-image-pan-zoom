@@ -16,7 +16,7 @@ npm install @snowmap.fr/react-native-image-pan-zoom
 ```js
 import ImagePanZoom from '@snowmap.fr/react-native-image-pan-zoom';
 
-<ImagePanZoom source="https://upload.wikimedia.org/wikipedia/commons/7/78/Marjaniemen_majakka.jpg" />
+<ImagePanZoom source="https://images.pexels.com/photos/31001122/pexels-photo-31001122.jpeg" />
 ```
 
 

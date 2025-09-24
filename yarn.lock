@@ -3556,9 +3556,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@snowmap.fr/react-native-image-pan-zoom-example@workspace:example":
+"@snowmap.fr/react-native-view-pan-zoom-example@workspace:example":
   version: 0.0.0-use.local
-  resolution: "@snowmap.fr/react-native-image-pan-zoom-example@workspace:example"
+  resolution: "@snowmap.fr/react-native-view-pan-zoom-example@workspace:example"
   dependencies:
     "@expo/metro-runtime": ~6.1.2
     expo: ~54.0.10
@@ -3572,9 +3572,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@snowmap.fr/react-native-image-pan-zoom@workspace:.":
+"@snowmap.fr/react-native-view-pan-zoom@workspace:.":
   version: 0.0.0-use.local
-  resolution: "@snowmap.fr/react-native-image-pan-zoom@workspace:."
+  resolution: "@snowmap.fr/react-native-view-pan-zoom@workspace:."
   dependencies:
     "@commitlint/config-conventional": ^19.8.1
     "@eslint/compat": ^1.3.2

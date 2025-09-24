@@ -1,4 +1,4 @@
-# @snowmap.fr/react-native-image-pan-zoom
+# @snowmap.fr/react-native-view-pan-zoom
 
 Pan and zoom in an image, with nothing more than everything you need.
 
@@ -6,7 +6,7 @@ Pan and zoom in an image, with nothing more than everything you need.
 
 
 ```sh
-npm install @snowmap.fr/react-native-image-pan-zoom
+npm install @snowmap.fr/react-native-view-pan-zoom
 ```
 
 
@@ -14,7 +14,7 @@ npm install @snowmap.fr/react-native-image-pan-zoom
 
 
 ```js
-import ImagePanZoom from '@snowmap.fr/react-native-image-pan-zoom';
+import ImagePanZoom from '@snowmap.fr/react-native-view-pan-zoom';
 
 <ImagePanZoom source="https://images.pexels.com/photos/31001122/pexels-photo-31001122.jpeg" />
 ```

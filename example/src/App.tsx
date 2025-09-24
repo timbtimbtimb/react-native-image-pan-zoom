@@ -1,5 +1,5 @@
 import { View, StyleSheet, Image } from 'react-native';
-import ViewPanZoom from '@snowmap.fr/react-native-image-pan-zoom';
+import ViewPanZoom from '@snowmap.fr/react-native-view-pan-zoom';
 
 export default function App() {
   return (

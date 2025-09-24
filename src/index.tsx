@@ -134,8 +134,11 @@ export default function ViewPanZoom({
         return;
       }
 
+      if (event.nativeEvent.touches.length === 0 && onSwipe != null) {
+        handleSwipe(gestureState, onSwipe);
+      }
+
       if (event.nativeEvent.touches.length === 1) {
-        if (onSwipe != null) handleSwipe(gestureState, onSwipe);
         onPanResponderStart(event);
       }
 

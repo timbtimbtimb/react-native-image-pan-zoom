@@ -6,7 +6,7 @@ export interface TapHistoryItem {
   direction: 'on' | 'off';
 }
 
-export default function handleDoubleTap(
+export default function isDoubleTap(
   event: GestureResponderEvent,
   tapHistory: RefObject<TapHistoryItem[]>
 ) {

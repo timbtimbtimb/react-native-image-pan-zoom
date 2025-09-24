@@ -1,11 +1,16 @@
 import { useCallback, useRef } from 'react';
 import type { ReactElement, ReactNode } from 'react';
-import type { GestureResponderEvent } from 'react-native';
+import type {
+  GestureResponderEvent,
+  PanResponderGestureState,
+} from 'react-native';
 import { Animated, PanResponder, StyleSheet, View } from 'react-native';
 import getTouchesSize from './getTouchesSize';
 import getTouchesCenter from './getTouchesCenter';
 import getTouchesCenterDelta from './getTouchesCenterDelta';
-import handleDoubleTap, { type TapHistoryItem } from './handleDoubleTap';
+import isDoubleTap, { type TapHistoryItem } from './isDoubleTap';
+import type { OnSwipe } from './handleSwipe';
+import handleSwipe from './handleSwipe';
 
 export type SwipeDirection = 'left' | 'right' | 'up' | 'down';
 
@@ -15,8 +20,10 @@ export type Position = {
 };
 
 export default function ImagePanZoom({
+  onSwipe,
   children,
 }: {
+  onSwipe?: OnSwipe;
   children: ReactNode;
 }): ReactElement {
   const tapHistory = useRef<TapHistoryItem[]>([]);
@@ -121,20 +128,21 @@ export default function ImagePanZoom({
   );
 
   const onPanResponderRelease = useCallback(
-    (event: GestureResponderEvent) => {
-      if (handleDoubleTap(event, tapHistory)) {
+    (event: GestureResponderEvent, gestureState: PanResponderGestureState) => {
+      if (isDoubleTap(event, tapHistory)) {
         reset();
         return;
       }
 
       if (event.nativeEvent.touches.length === 1) {
+        if (onSwipe != null) handleSwipe(gestureState, onSwipe);
         onPanResponderStart(event);
       }
 
       startCenter.current = currentCenter.current;
       startScale.current = currentScale.current;
     },
-    [onPanResponderStart, reset]
+    [onPanResponderStart, onSwipe, reset]
   );
 
   const panResponder = useRef(

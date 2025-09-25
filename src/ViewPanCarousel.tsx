@@ -7,7 +7,10 @@ import {
   useImperativeHandle,
   forwardRef,
   type ReactElement,
+  useCallback,
+  useMemo,
 } from 'react';
+import type { SwipeDirection } from './types';
 
 export type ViewPanCarouselRef = {
   index: number;
@@ -25,14 +28,15 @@ const ViewPanCarousel = forwardRef<
 
   useImperativeHandle(ref, () => ({
     index,
-    setIndex: (n: number) => {
-      setIndex(n);
-    },
+    setIndex,
   }));
 
   useEffect(() => {
     onIndexChange?.(index);
-    viewPanZoomRefs.current?.forEach((r) => r.reset());
+    if (viewPanZoomRefs.current == null) return;
+    viewPanZoomRefs.current[index]?.reset();
+    viewPanZoomRefs.current[index - 1]?.reset();
+    viewPanZoomRefs.current[index + 1]?.reset();
   }, [index, onIndexChange]);
 
   useEffect(() => {
@@ -43,35 +47,42 @@ const ViewPanCarousel = forwardRef<
     }).start();
   }, [index, translateX, width]);
 
-  const elements = images.map((image, n) => {
-    return (
-      <ViewPanZoom
-        ref={(r) => {
-          if (r == null) return;
-          viewPanZoomRefs.current.push(r);
-        }}
-        key={image + n}
-        onSwipe={(direction) => {
-          setIndex((prev) => {
-            if (direction === 'up' || direction === 'down') return prev;
-            const increment = direction === 'right' ? -1 : 1;
-            const newIndex = prev + increment;
-            if (newIndex < 0 || newIndex > images.length - 1) return prev;
-            return newIndex;
-          });
-        }}
-      >
-        <Image
-          source={{
-            uri: image,
+  const onSwipe = useCallback(
+    (direction: SwipeDirection) => {
+      setIndex((prev) => {
+        if (direction === 'up' || direction === 'down') return prev;
+        const increment = direction === 'right' ? -1 : 1;
+        const newIndex = prev + increment;
+        if (newIndex < 0 || newIndex > images.length - 1) return prev;
+        return newIndex;
+      });
+    },
+    [images]
+  );
+
+  const elements = useMemo(() => {
+    return images.map((image, n) => {
+      return (
+        <ViewPanZoom
+          ref={(r) => {
+            if (r == null) return;
+            viewPanZoomRefs.current[n] = r;
           }}
-          onError={console.error}
-          resizeMode={'contain'}
-          style={styles.image}
-        />
-      </ViewPanZoom>
-    );
-  });
+          key={image + n}
+          onSwipe={onSwipe}
+        >
+          <Image
+            source={{
+              uri: image,
+            }}
+            onError={console.error}
+            resizeMode={'contain'}
+            style={styles.image}
+          />
+        </ViewPanZoom>
+      );
+    });
+  }, [images, onSwipe]);
 
   return (
     <Animated.View

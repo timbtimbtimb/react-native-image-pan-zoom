@@ -1,4 +1,4 @@
-import { useCallback, useRef } from 'react';
+import { forwardRef, useCallback, useImperativeHandle, useRef } from 'react';
 import type { ReactElement, ReactNode } from 'react';
 import type {
   GestureResponderEvent,
@@ -13,13 +13,17 @@ import type { OnSwipe } from './handleSwipe';
 import handleSwipe from './handleSwipe';
 import type { Position } from './types';
 
-export default function ViewPanZoom({
-  onSwipe,
-  children,
-}: {
-  onSwipe?: OnSwipe;
-  children: ReactNode;
-}): ReactElement {
+export type ViewPanZoomRef = {
+  reset: () => void;
+};
+
+const ViewPanZoom = forwardRef<
+  ViewPanZoomRef,
+  {
+    onSwipe?: OnSwipe;
+    children: ReactNode;
+  }
+>(({ onSwipe, children }, ref): ReactElement => {
   const tapHistory = useRef<number[]>([]);
 
   const touchesStartSize = useRef<number>(1);
@@ -32,6 +36,10 @@ export default function ViewPanZoom({
   const touchesStartCenter = useRef<Position>({ x: 0, y: 0 });
   const startCenter = useRef<Position>({ x: 0, y: 0 });
   const currentCenter = useRef<Position>({ x: 0, y: 0 });
+
+  useImperativeHandle(ref, () => ({
+    reset,
+  }));
 
   const reset = useCallback(() => {
     startScale.current = 1;
@@ -173,7 +181,9 @@ export default function ViewPanZoom({
       </Animated.View>
     </View>
   );
-}
+});
+
+export default ViewPanZoom;
 
 const styles = StyleSheet.create({
   container: {

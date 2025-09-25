@@ -1,5 +1,5 @@
 import { StyleSheet, Image, Animated, Dimensions } from 'react-native';
-import ViewPanZoom from './ViewPanZoom';
+import ViewPanZoom, { type ViewPanZoomRef } from './ViewPanZoom';
 import {
   useEffect,
   useRef,
@@ -21,14 +21,18 @@ const ViewPanCarousel = forwardRef<
   const [index, setIndex] = useState<number>(0);
   const translateX = useRef(new Animated.Value(0)).current;
   const width = Dimensions.get('window').width;
+  const viewPanZoomRefs = useRef<ViewPanZoomRef[]>([]);
 
   useImperativeHandle(ref, () => ({
     index,
-    setIndex,
+    setIndex: (n: number) => {
+      setIndex(n);
+    },
   }));
 
   useEffect(() => {
     onIndexChange?.(index);
+    viewPanZoomRefs.current?.forEach((r) => r.reset());
   }, [index, onIndexChange]);
 
   useEffect(() => {
@@ -42,6 +46,10 @@ const ViewPanCarousel = forwardRef<
   const elements = images.map((image, n) => {
     return (
       <ViewPanZoom
+        ref={(r) => {
+          if (r == null) return;
+          viewPanZoomRefs.current.push(r);
+        }}
         key={image + n}
         onSwipe={(direction) => {
           setIndex((prev) => {

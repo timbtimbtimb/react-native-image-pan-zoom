@@ -1,6 +1,8 @@
 import ViewPanZoom from './ViewPanZoom';
-import ViewPanCarousel from './ViewPanCarousel';
+import ViewPanCarousel, { type ViewPanCarouselRef } from './ViewPanCarousel';
 
 export default ViewPanZoom;
 
 export { ViewPanZoom, ViewPanCarousel };
+
+export type { ViewPanCarouselRef };

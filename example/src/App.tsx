@@ -1,5 +1,7 @@
-import { ViewPanCarousel } from '@snowmap.fr/react-native-view-pan-zoom';
-import type { ViewPanCarouselRef } from '../../src/ViewPanCarousel';
+import {
+  ViewPanCarousel,
+  type ViewPanCarouselRef,
+} from '@snowmap.fr/react-native-view-pan-zoom';
 import { useCallback, useEffect, useRef } from 'react';
 
 const images = [

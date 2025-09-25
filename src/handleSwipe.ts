@@ -14,17 +14,18 @@ export default function handleSwipe(
   onSwipe: OnSwipe
 ) {
   const speed = Math.abs(gestureState.vx) + Math.abs(gestureState.vy);
-  if (speed > 1) {
-    const directions: [Directions, number][] = [
-      ['down', Math.abs(Math.max(0, gestureState.vy))],
-      ['up', Math.abs(Math.min(0, gestureState.vy))],
-      ['right', Math.abs(Math.max(0, gestureState.vx))],
-      ['left', Math.abs(Math.min(0, gestureState.vx))],
-    ];
+  if (speed <= 1) return false;
 
-    const sortedDirections = directions.sort((a, b) => b[1] - a[1]);
-    const fastestDirection = sortedDirections[0]?.[0] as Directions;
+  const directions: [Directions, number][] = [
+    ['down', Math.abs(Math.max(0, gestureState.vy))],
+    ['up', Math.abs(Math.min(0, gestureState.vy))],
+    ['right', Math.abs(Math.max(0, gestureState.vx))],
+    ['left', Math.abs(Math.min(0, gestureState.vx))],
+  ];
 
-    onSwipe(fastestDirection);
-  }
+  const sortedDirections = directions.sort((a, b) => b[1] - a[1]);
+  const fastestDirection = sortedDirections[0]?.[0] as Directions;
+
+  onSwipe(fastestDirection);
+  return true;
 }

@@ -1,10 +1,5 @@
 import type { PanResponderGestureState } from 'react-native';
 
-export interface TapHistoryItem {
-  timestamp: number;
-  direction: 'on' | 'off';
-}
-
 type Directions = 'left' | 'right' | 'up' | 'down';
 
 export type OnSwipe = (direction: Directions) => any;

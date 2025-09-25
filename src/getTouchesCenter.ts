@@ -1,5 +1,5 @@
 import type { GestureResponderEvent } from 'react-native';
-import type { Position } from '.';
+import type { Position } from './types';
 
 export default function getTouchesCenter(
   event: GestureResponderEvent

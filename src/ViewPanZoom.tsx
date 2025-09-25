@@ -11,13 +11,7 @@ import getTouchesCenterDelta from './getTouchesCenterDelta';
 import isDoubleTap from './isDoubleTap';
 import type { OnSwipe } from './handleSwipe';
 import handleSwipe from './handleSwipe';
-
-export type SwipeDirection = 'left' | 'right' | 'up' | 'down';
-
-export type Position = {
-  x: number;
-  y: number;
-};
+import type { Position } from './types';
 
 export default function ViewPanZoom({
   onSwipe,

@@ -1,15 +1,35 @@
 import { StyleSheet, Image, Animated, Dimensions } from 'react-native';
 import ViewPanZoom from './ViewPanZoom';
-import { useEffect, useRef, useState, type ReactElement } from 'react';
+import {
+  useEffect,
+  useRef,
+  useState,
+  useImperativeHandle,
+  forwardRef,
+  type ReactElement,
+} from 'react';
 
-export default function ViewPanCarousel({
-  images,
-}: {
-  images: string[];
-}): ReactElement {
+export type ViewPanCarouselRef = {
+  index: number;
+  setIndex: (index: number) => void;
+};
+
+const ViewPanCarousel = forwardRef<
+  ViewPanCarouselRef,
+  { images: string[]; onIndexChange?: (index: number) => any }
+>(({ images, onIndexChange }, ref): ReactElement => {
   const [index, setIndex] = useState<number>(0);
   const translateX = useRef(new Animated.Value(0)).current;
   const width = Dimensions.get('window').width;
+
+  useImperativeHandle(ref, () => ({
+    index,
+    setIndex,
+  }));
+
+  useEffect(() => {
+    onIndexChange?.(index);
+  }, [index, onIndexChange]);
 
   useEffect(() => {
     Animated.timing(translateX, {
@@ -55,7 +75,9 @@ export default function ViewPanCarousel({
       {elements}
     </Animated.View>
   );
-}
+});
+
+export default ViewPanCarousel;
 
 const styles = StyleSheet.create({
   container: {

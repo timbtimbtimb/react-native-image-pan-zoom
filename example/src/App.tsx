@@ -1,4 +1,6 @@
 import { ViewPanCarousel } from '@snowmap.fr/react-native-view-pan-zoom';
+import type { ViewPanCarouselRef } from '../../src/ViewPanCarousel';
+import { useCallback, useEffect, useRef } from 'react';
 
 const images = [
   'https://images.pexels.com/photos/933054/pexels-photo-933054.jpeg',
@@ -8,5 +10,22 @@ const images = [
 ];
 
 export default function App() {
-  return <ViewPanCarousel images={images} />;
+  const ref = useRef<ViewPanCarouselRef>(null);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      console.log('Back to index 0!');
+      ref.current?.setIndex(0);
+    }, 3000);
+
+    return () => clearInterval(interval);
+  });
+
+  const onIndexChange = useCallback((index: number) => {
+    console.log(`Switched to index ${index}.`);
+  }, []);
+
+  return (
+    <ViewPanCarousel images={images} ref={ref} onIndexChange={onIndexChange} />
+  );
 }

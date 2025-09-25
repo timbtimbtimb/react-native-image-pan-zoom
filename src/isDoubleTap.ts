@@ -1,14 +1,9 @@
 import type { RefObject } from 'react';
 import type { GestureResponderEvent } from 'react-native';
 
-export interface TapHistoryItem {
-  timestamp: number;
-  direction: 'on' | 'off';
-}
-
 export default function isDoubleTap(
   event: GestureResponderEvent,
-  tapHistory: RefObject<TapHistoryItem[]>
+  tapHistory: RefObject<number[]>
 ) {
   if (
     event.nativeEvent.changedTouches.length !== 1 ||
@@ -17,25 +12,10 @@ export default function isDoubleTap(
     return false;
   }
 
-  tapHistory.current = [
-    ...tapHistory.current,
-    {
-      timestamp: event.timeStamp,
-      direction: 'off',
-    },
-  ];
+  tapHistory.current = [...tapHistory.current, event.timeStamp];
 
-  if (
-    tapHistory.current.at(-1)?.direction !== 'off' ||
-    tapHistory.current.at(-2)?.direction !== 'on' ||
-    tapHistory.current.at(-3)?.direction !== 'off' ||
-    tapHistory.current.at(-4)?.direction !== 'on'
-  ) {
-    return false;
-  }
-
-  const start = tapHistory.current.at(-4)?.timestamp;
-  const end = tapHistory.current.at(-1)?.timestamp;
+  const start = tapHistory.current.at(-4);
+  const end = tapHistory.current.at(-1);
 
   if (start == null || end == null) return false;
 

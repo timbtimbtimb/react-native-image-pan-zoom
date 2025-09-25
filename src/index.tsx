@@ -8,7 +8,7 @@ import { Animated, PanResponder, StyleSheet, View } from 'react-native';
 import getTouchesSize from './getTouchesSize';
 import getTouchesCenter from './getTouchesCenter';
 import getTouchesCenterDelta from './getTouchesCenterDelta';
-import isDoubleTap, { type TapHistoryItem } from './isDoubleTap';
+import isDoubleTap from './isDoubleTap';
 import type { OnSwipe } from './handleSwipe';
 import handleSwipe from './handleSwipe';
 
@@ -26,7 +26,7 @@ export default function ViewPanZoom({
   onSwipe?: OnSwipe;
   children: ReactNode;
 }): ReactElement {
-  const tapHistory = useRef<TapHistoryItem[]>([]);
+  const tapHistory = useRef<number[]>([]);
 
   const touchesStartSize = useRef<number>(1);
   const startScale = useRef<number>(1);
@@ -66,13 +66,7 @@ export default function ViewPanZoom({
     if (event.nativeEvent.touches[0] == null) return;
 
     if (event.nativeEvent.touches.length === 1) {
-      tapHistory.current = [
-        ...tapHistory.current,
-        {
-          timestamp: event.timeStamp,
-          direction: 'on',
-        },
-      ];
+      tapHistory.current = [...tapHistory.current, event.timeStamp];
 
       touchesStartCenter.current = {
         x: event.nativeEvent.touches[0].pageX,
@@ -88,6 +82,8 @@ export default function ViewPanZoom({
 
   const onPanResponderMove = useCallback(
     (event: GestureResponderEvent) => {
+      tapHistory.current = [];
+
       if (event.nativeEvent.touches.length === 1) {
         const centerDelta = getTouchesCenterDelta(
           event,

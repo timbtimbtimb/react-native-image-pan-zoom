@@ -1,10 +1,23 @@
-import { forwardRef, useCallback, useImperativeHandle, useRef } from 'react';
+import {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+} from 'react';
 import type { ReactElement, ReactNode } from 'react';
 import type {
+  CursorValue,
   GestureResponderEvent,
   PanResponderGestureState,
 } from 'react-native';
-import { Animated, PanResponder, StyleSheet, View } from 'react-native';
+import {
+  Animated,
+  PanResponder,
+  Platform,
+  StyleSheet,
+  View,
+} from 'react-native';
 import getTouchesSize from './getTouchesSize';
 import getTouchesCenter from './getTouchesCenter';
 import getTouchesCenterDelta from './getTouchesCenterDelta';
@@ -24,6 +37,8 @@ const ViewPanZoom = forwardRef<
     children: ReactNode;
   }
 >(({ onSwipe, children }, ref): ReactElement => {
+  const containerRef = useRef(null);
+
   const tapHistory = useRef<number[]>([]);
 
   const touchesStartSize = useRef<number>(1);
@@ -40,6 +55,29 @@ const ViewPanZoom = forwardRef<
   useImperativeHandle(ref, () => ({
     reset,
   }));
+
+  useEffect(() => {
+    if (Platform.OS !== 'web') return;
+    const element = containerRef.current;
+    if (element == null) return;
+    const typedElement: HTMLDivElement = element;
+
+    const handleWheel = (e: WheelEvent) => {
+      const factor = 0.05;
+      const operation = e.deltaY > 0 ? 1 - factor : 1 + factor;
+      const newScale = currentScale.current * operation;
+
+      console.log({ newScale });
+
+      startScale.current = newScale;
+      currentScale.current = newScale;
+      scale.setValue(newScale);
+    };
+
+    typedElement.addEventListener('wheel', handleWheel);
+
+    return () => typedElement.removeEventListener('wheel', handleWheel);
+  }, [ref, scale]);
 
   const reset = useCallback(() => {
     startScale.current = 1;
@@ -132,7 +170,11 @@ const ViewPanZoom = forwardRef<
         return;
       }
 
-      if (event.nativeEvent.touches.length === 0 && onSwipe != null) {
+      if (
+        Platform.OS !== 'web' &&
+        event.nativeEvent.touches.length === 0 &&
+        onSwipe != null
+      ) {
         if (handleSwipe(gestureState, onSwipe)) {
           reset();
         }
@@ -163,7 +205,11 @@ const ViewPanZoom = forwardRef<
   );
 
   return (
-    <View style={styles.container} {...panResponder.current.panHandlers}>
+    <View
+      ref={containerRef}
+      style={styles.container}
+      {...panResponder.current.panHandlers}
+    >
       <Animated.View
         style={{
           ...styles.container,
@@ -189,5 +235,6 @@ const styles = StyleSheet.create({
   container: {
     width: '100%',
     height: '100%',
+    cursor: 'grab' as CursorValue,
   },
 });

@@ -1,4 +1,9 @@
-import { StyleSheet, Image, Animated, Dimensions } from 'react-native';
+import {
+  StyleSheet,
+  Image,
+  Animated,
+  type LayoutRectangle,
+} from 'react-native';
 import ViewPanZoom, { type ViewPanZoomRef } from './ViewPanZoom';
 import {
   useEffect,
@@ -22,13 +27,16 @@ const ViewPanCarousel = forwardRef<
   { images: string[]; onIndexChange?: (index: number) => any }
 >(({ images, onIndexChange }, ref): ReactElement => {
   const [index, setIndex] = useState<number>(0);
+  const containerDimensions = useRef<LayoutRectangle>(null);
   const translateX = useRef(new Animated.Value(0)).current;
-  const width = Dimensions.get('window').width;
   const viewPanZoomRefs = useRef<ViewPanZoomRef[]>([]);
 
   useImperativeHandle(ref, () => ({
     index,
-    setIndex,
+    setIndex: (i: number) => {
+      if (i >= images.length || i < 0) return;
+      setIndex(i);
+    },
   }));
 
   useEffect(() => {
@@ -40,12 +48,14 @@ const ViewPanCarousel = forwardRef<
   }, [index, onIndexChange]);
 
   useEffect(() => {
+    if (containerDimensions.current == null) return;
+
     Animated.timing(translateX, {
-      toValue: index * width * -1,
+      toValue: index * containerDimensions.current.width * -1,
       duration: 200,
       useNativeDriver: true,
     }).start();
-  }, [index, translateX, width]);
+  }, [index, translateX]);
 
   const onSwipe = useCallback(
     (direction: SwipeDirection) => {
@@ -89,6 +99,9 @@ const ViewPanCarousel = forwardRef<
       style={{
         ...styles.container,
         transform: [{ translateX }],
+      }}
+      onLayout={(event) => {
+        containerDimensions.current = event.nativeEvent.layout;
       }}
     >
       {elements}

@@ -1,8 +1,5 @@
-import {
-  ViewPanCarousel,
-  type ViewPanCarouselRef,
-} from '@snowmap.fr/react-native-view-pan-zoom';
-import { useCallback, useRef } from 'react';
+import { ViewPanCarousel } from '@snowmap.fr/react-native-view-pan-zoom';
+import { useState } from 'react';
 import { Button, Platform, StyleSheet, View } from 'react-native';
 
 const images = [
@@ -13,11 +10,7 @@ const images = [
 ];
 
 export default function App() {
-  const ref = useRef<ViewPanCarouselRef>(null);
-
-  const onIndexChange = useCallback((index: number) => {
-    console.log(`Switched to index ${index}.`);
-  }, []);
+  const [index, setIndex] = useState<number>(0);
 
   return (
     <View style={styles.container}>
@@ -26,24 +19,18 @@ export default function App() {
           <Button
             title="Previous"
             onPress={() => {
-              if (ref.current == null) return;
-              ref.current.setIndex(ref.current.index - 1);
+              setIndex((prev) => Math.max(0, prev - 1));
             }}
           />
         </View>
       )}
-      <ViewPanCarousel
-        images={images}
-        ref={ref}
-        onIndexChange={onIndexChange}
-      />
+      <ViewPanCarousel images={images} index={index} setIndex={setIndex} />
       {Platform.OS === 'web' && (
         <View style={{ ...styles.button, ...styles.nextButton }}>
           <Button
             title="Next"
             onPress={() => {
-              if (ref.current == null) return;
-              ref.current.setIndex(ref.current.index + 1);
+              setIndex((prev) => Math.min(images.length - 1, prev + 1));
             }}
           />
         </View>

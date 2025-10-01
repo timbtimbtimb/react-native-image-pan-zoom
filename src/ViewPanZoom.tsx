@@ -4,8 +4,9 @@ import {
   useEffect,
   useImperativeHandle,
   useRef,
+  type ReactElement,
+  type ReactNode,
 } from 'react';
-import type { ReactElement, ReactNode } from 'react';
 import type {
   CursorValue,
   GestureResponderEvent,

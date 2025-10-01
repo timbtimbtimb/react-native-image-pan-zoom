@@ -1,51 +1,42 @@
 import {
-  StyleSheet,
-  Image,
   Animated,
+  Image,
+  StyleSheet,
   type LayoutRectangle,
 } from 'react-native';
 import ViewPanZoom, { type ViewPanZoomRef } from './ViewPanZoom';
 import {
-  useEffect,
-  useRef,
-  useState,
-  useImperativeHandle,
-  forwardRef,
+  type Dispatch,
   type ReactElement,
+  type SetStateAction,
   useCallback,
+  useEffect,
   useMemo,
+  useRef,
 } from 'react';
 import type { SwipeDirection } from './types';
 
-export type ViewPanCarouselRef = {
+interface Props {
+  images: string[];
   index: number;
-  setIndex: (index: number) => void;
-};
+  setIndex: Dispatch<SetStateAction<number>>;
+}
 
-const ViewPanCarousel = forwardRef<
-  ViewPanCarouselRef,
-  { images: string[]; onIndexChange?: (index: number) => any }
->(({ images, onIndexChange }, ref): ReactElement => {
-  const [index, setIndex] = useState<number>(0);
+export default function ViewPanCarousel({
+  images,
+  index,
+  setIndex,
+}: Props): ReactElement {
   const containerDimensions = useRef<LayoutRectangle>(null);
   const translateX = useRef(new Animated.Value(0)).current;
   const viewPanZoomRefs = useRef<ViewPanZoomRef[]>([]);
 
-  useImperativeHandle(ref, () => ({
-    index,
-    setIndex: (i: number) => {
-      if (i >= images.length || i < 0) return;
-      setIndex(i);
-    },
-  }));
-
   useEffect(() => {
-    onIndexChange?.(index);
     if (viewPanZoomRefs.current == null) return;
     viewPanZoomRefs.current[index]?.reset();
     viewPanZoomRefs.current[index - 1]?.reset();
     viewPanZoomRefs.current[index + 1]?.reset();
-  }, [index, onIndexChange]);
+  }, [index]);
 
   useEffect(() => {
     if (containerDimensions.current == null) return;
@@ -59,7 +50,7 @@ const ViewPanCarousel = forwardRef<
 
   const onSwipe = useCallback(
     (direction: SwipeDirection) => {
-      setIndex((prev) => {
+      setIndex((prev: number) => {
         if (direction === 'up' || direction === 'down') return prev;
         const increment = direction === 'right' ? -1 : 1;
         const newIndex = prev + increment;
@@ -67,7 +58,7 @@ const ViewPanCarousel = forwardRef<
         return newIndex;
       });
     },
-    [images]
+    [images, setIndex]
   );
 
   const elements = useMemo(() => {
@@ -107,9 +98,7 @@ const ViewPanCarousel = forwardRef<
       {elements}
     </Animated.View>
   );
-});
-
-export default ViewPanCarousel;
+}
 
 const styles = StyleSheet.create({
   container: {

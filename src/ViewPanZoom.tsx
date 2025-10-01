@@ -67,9 +67,6 @@ const ViewPanZoom = forwardRef<
       const factor = 0.05;
       const operation = e.deltaY > 0 ? 1 - factor : 1 + factor;
       const newScale = currentScale.current * operation;
-
-      console.log({ newScale });
-
       startScale.current = newScale;
       currentScale.current = newScale;
       scale.setValue(newScale);
